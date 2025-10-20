@@ -75,30 +75,21 @@ class _MyAppState extends State<MyApp> {
                 items.insert(newIndex, item);
               });
             },
-            feedbackBuilder: (child, index) => Container(
-              width: 200,
-              height: 60,
-              decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.8),
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  items[index]['text'],
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+            feedbackBuilder: (child, index) {
+              // Создаем точно такой же виджет как основной, только уменьшенный
+              return Transform.scale(
+                scale: 0.7, // Уменьшаем размер
+                child: Material(
+                  elevation: 12,
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.transparent,
+                  child: Opacity(
+                    opacity: 0.8, // Добавляем прозрачность
+                    child: _buildListItem(items[index], index), // Используем тот же метод что и для основного виджета
                   ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ),
       ),

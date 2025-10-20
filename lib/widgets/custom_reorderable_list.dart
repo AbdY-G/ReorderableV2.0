@@ -237,20 +237,14 @@ class _CustomDraggableListState extends State<CustomDraggableList> {
 
   Widget _buildDefaultFeedback(Widget child, int index) {
     return Transform.scale(
-      scale: 0.9, // Немного уменьшаем размер
+      scale: 0.7, // Уменьшаем размер
       child: Material(
-        elevation: 8,
-        borderRadius: BorderRadius.circular(8),
+        elevation: 12,
+        borderRadius: BorderRadius.circular(12),
         color: Colors.transparent,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Container(
-            constraints: const BoxConstraints(
-              maxWidth: 300,
-              maxHeight: 80,
-            ),
-            child: child,
-          ),
+        child: Opacity(
+          opacity: 0.8, // Добавляем прозрачность
+          child: child, // Используем оригинальный виджет
         ),
       ),
     );
