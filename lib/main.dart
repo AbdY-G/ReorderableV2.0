@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:reorderable_2_0/widgets/custom_reorderable_list.dart';
 
-void main() => runApp(const MaterialApp(home: MyApp()));
+void main() =>
+    runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: MyApp()));
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -40,7 +41,9 @@ class _MyAppState extends State<MyApp> {
           controller: _scrollController,
           child: CustomDraggableList(
             scrollController: _scrollController,
-            children: items.map((item) => _buildListItem(item, items.indexOf(item))).toList(),
+            children: items
+                .map((item) => _buildListItem(item, items.indexOf(item)))
+                .toList(),
             onReorder: (oldIndex, newIndex) {
               setState(() {
                 if (newIndex > oldIndex) {
@@ -103,15 +106,9 @@ class _MyAppState extends State<MyApp> {
         ),
         title: Text(
           item,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),
-        trailing: const Icon(
-          Icons.drag_handle,
-          color: Colors.grey,
-        ),
+        trailing: const Icon(Icons.drag_handle, color: Colors.grey),
       ),
     );
   }
