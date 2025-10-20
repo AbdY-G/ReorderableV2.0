@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 class CustomDraggableList extends StatefulWidget {
@@ -6,6 +7,7 @@ class CustomDraggableList extends StatefulWidget {
   final Widget Function(Widget child, int index)? feedbackBuilder;
   final Color insertIndicatorColor;
   final double insertIndicatorHeight;
+  final ScrollController? scrollController;
 
   const CustomDraggableList({
     super.key,
@@ -14,6 +16,7 @@ class CustomDraggableList extends StatefulWidget {
     this.feedbackBuilder,
     this.insertIndicatorColor = Colors.purple,
     this.insertIndicatorHeight = 6.0,
+    this.scrollController,
   });
 
   @override
@@ -22,6 +25,66 @@ class CustomDraggableList extends StatefulWidget {
 
 class _CustomDraggableListState extends State<CustomDraggableList> {
   int? _targetIndex;
+  Timer? _autoScrollTimer;
+  double _autoScrollSpeed = 0.0;
+
+  @override
+  void dispose() {
+    _autoScrollTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startAutoScroll(double speed) {
+    _autoScrollSpeed = speed;
+    if (_autoScrollTimer == null) {
+      _autoScrollTimer = Timer.periodic(const Duration(milliseconds: 16), (timer) {
+        if (widget.scrollController != null && widget.scrollController!.hasClients) {
+          final currentOffset = widget.scrollController!.offset;
+          final newOffset = currentOffset + _autoScrollSpeed;
+          
+          if (newOffset >= 0 && 
+              newOffset <= widget.scrollController!.position.maxScrollExtent) {
+            widget.scrollController!.jumpTo(newOffset);
+          }
+        }
+      });
+    }
+  }
+
+  void _stopAutoScroll() {
+    _autoScrollTimer?.cancel();
+    _autoScrollTimer = null;
+    _autoScrollSpeed = 0.0;
+  }
+
+  void _handleDragUpdate(DragUpdateDetails details) {
+    if (widget.scrollController == null || !widget.scrollController!.hasClients) {
+      return;
+    }
+
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final position = renderBox.globalToLocal(details.globalPosition);
+    final scrollViewHeight = renderBox.size.height;
+    
+    const autoScrollZone = 50.0; // Зона автоскролла в пикселях
+    const maxScrollSpeed = 10.0; // Максимальная скорость скролла
+
+    // Автоскролл вверх
+    if (position.dy < autoScrollZone && widget.scrollController!.offset > 0) {
+      final speed = (autoScrollZone - position.dy) / autoScrollZone * maxScrollSpeed;
+      _startAutoScroll(-speed);
+    }
+    // Автоскролл вниз
+    else if (position.dy > scrollViewHeight - autoScrollZone && 
+             widget.scrollController!.offset < widget.scrollController!.position.maxScrollExtent) {
+      final speed = (position.dy - (scrollViewHeight - autoScrollZone)) / autoScrollZone * maxScrollSpeed;
+      _startAutoScroll(speed);
+    }
+    // Остановить автоскролл
+    else {
+      _stopAutoScroll();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,10 +190,12 @@ class _CustomDraggableListState extends State<CustomDraggableList> {
       onDragStarted: () {
         // Drag started
       },
+      onDragUpdate: _handleDragUpdate,
       onDragEnd: (details) {
         setState(() {
           _targetIndex = null;
         });
+        _stopAutoScroll();
       },
       feedback: widget.feedbackBuilder?.call(child, index) ?? 
                Container(

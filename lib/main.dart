@@ -11,7 +11,20 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<String> items = List.generate(10, (index) => 'Item ${index + 1}');
+  List<String> items = List.generate(20, (index) => 'Item ${index + 1}');
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +37,9 @@ class _MyAppState extends State<MyApp> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
+          controller: _scrollController,
           child: CustomDraggableList(
+            scrollController: _scrollController,
             children: items.map((item) => _buildListItem(item, items.indexOf(item))).toList(),
             onReorder: (oldIndex, newIndex) {
               setState(() {
