@@ -65,6 +65,7 @@ class _MyAppState extends State<MyApp> {
 
   Widget _buildListItem(String item, int index) {
     return Container(
+      key: ValueKey(item), // Добавляем уникальный ключ для каждого элемента
       margin: const EdgeInsets.symmetric(vertical: 4),
       height: 60,
       decoration: BoxDecoration(
