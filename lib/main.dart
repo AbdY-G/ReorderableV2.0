@@ -30,7 +30,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Custom Reorderable List'),
+        title: const Text('Reorderable List v 2.0'),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),
