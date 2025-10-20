@@ -23,37 +23,39 @@ class _MyAppState extends State<MyApp> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: CustomDraggableList(
-          children: items.map((item) => _buildListItem(item, items.indexOf(item))).toList(),
-          onReorder: (oldIndex, newIndex) {
-            setState(() {
-              if (newIndex > oldIndex) {
-                newIndex -= 1;
-              }
-              final item = items.removeAt(oldIndex);
-              items.insert(newIndex, item);
-            });
-          },
-          feedbackBuilder: (child, index) => Container(
-            width: 200,
-            height: 60,
-            decoration: BoxDecoration(
-              color: Colors.blue.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Text(
-                items[index],
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+        child: SingleChildScrollView(
+          child: CustomDraggableList(
+            children: items.map((item) => _buildListItem(item, items.indexOf(item))).toList(),
+            onReorder: (oldIndex, newIndex) {
+              setState(() {
+                if (newIndex > oldIndex) {
+                  newIndex -= 1;
+                }
+                final item = items.removeAt(oldIndex);
+                items.insert(newIndex, item);
+              });
+            },
+            feedbackBuilder: (child, index) => Container(
+              width: 200,
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.blue.withValues(alpha: 0.8),
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text(
+                  items[index],
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
