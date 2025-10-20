@@ -36,19 +36,17 @@ class _CustomDraggableListState extends State<CustomDraggableList> {
 
   void _startAutoScroll(double speed) {
     _autoScrollSpeed = speed;
-    if (_autoScrollTimer == null) {
-      _autoScrollTimer = Timer.periodic(const Duration(milliseconds: 16), (timer) {
-        if (widget.scrollController != null && widget.scrollController!.hasClients) {
-          final currentOffset = widget.scrollController!.offset;
-          final newOffset = currentOffset + _autoScrollSpeed;
-          
-          if (newOffset >= 0 && 
-              newOffset <= widget.scrollController!.position.maxScrollExtent) {
-            widget.scrollController!.jumpTo(newOffset);
-          }
+    _autoScrollTimer ??= Timer.periodic(const Duration(milliseconds: 16), (timer) {
+      if (widget.scrollController != null && widget.scrollController!.hasClients) {
+        final currentOffset = widget.scrollController!.offset;
+        final newOffset = currentOffset + _autoScrollSpeed;
+        
+        if (newOffset >= 0 && 
+            newOffset <= widget.scrollController!.position.maxScrollExtent) {
+          widget.scrollController!.jumpTo(newOffset);
         }
-      });
-    }
+      }
+    });
   }
 
   void _stopAutoScroll() {
@@ -62,26 +60,33 @@ class _CustomDraggableListState extends State<CustomDraggableList> {
       return;
     }
 
-    final RenderBox renderBox = context.findRenderObject() as RenderBox;
-    final position = renderBox.globalToLocal(details.globalPosition);
-    final scrollViewHeight = renderBox.size.height;
+    // Получаем размеры экрана
+    final screenSize = MediaQuery.of(context).size;
+    final globalPosition = details.globalPosition;
     
-    const autoScrollZone = 50.0; // Зона автоскролла в пикселях
-    const maxScrollSpeed = 10.0; // Максимальная скорость скролла
+    const autoScrollZone = 100.0; // Увеличиваем зону автоскролла
+    const maxScrollSpeed = 15.0; // Увеличиваем скорость скролла
 
-    // Автоскролл вверх
-    if (position.dy < autoScrollZone && widget.scrollController!.offset > 0) {
-      final speed = (autoScrollZone - position.dy) / autoScrollZone * maxScrollSpeed;
+    // Отладочная информация
+    print('Drag position: ${globalPosition.dy}, Screen height: ${screenSize.height}');
+    print('Scroll offset: ${widget.scrollController!.offset}, Max: ${widget.scrollController!.position.maxScrollExtent}');
+
+    // Автоскролл вверх - когда курсор в верхней части экрана
+    if (globalPosition.dy < autoScrollZone && widget.scrollController!.offset > 0) {
+      final speed = (autoScrollZone - globalPosition.dy) / autoScrollZone * maxScrollSpeed;
+      print('Auto-scroll UP with speed: -$speed');
       _startAutoScroll(-speed);
     }
-    // Автоскролл вниз
-    else if (position.dy > scrollViewHeight - autoScrollZone && 
+    // Автоскролл вниз - когда курсор в нижней части экрана
+    else if (globalPosition.dy > screenSize.height - autoScrollZone && 
              widget.scrollController!.offset < widget.scrollController!.position.maxScrollExtent) {
-      final speed = (position.dy - (scrollViewHeight - autoScrollZone)) / autoScrollZone * maxScrollSpeed;
+      final speed = (globalPosition.dy - (screenSize.height - autoScrollZone)) / autoScrollZone * maxScrollSpeed;
+      print('Auto-scroll DOWN with speed: $speed');
       _startAutoScroll(speed);
     }
     // Остановить автоскролл
     else {
+      print('Stop auto-scroll');
       _stopAutoScroll();
     }
   }
