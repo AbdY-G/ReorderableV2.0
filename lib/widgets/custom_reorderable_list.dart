@@ -237,14 +237,39 @@ class _CustomDraggableListState extends State<CustomDraggableList> {
 
   Widget _buildDefaultFeedback(Widget child, int index) {
     return Transform.scale(
-      scale: 0.7, // Уменьшаем размер
+      scale: 0.8, // Уменьшаем размер
       child: Material(
         elevation: 12,
         borderRadius: BorderRadius.circular(12),
         color: Colors.transparent,
         child: Opacity(
-          opacity: 0.8, // Добавляем прозрачность
-          child: child, // Используем оригинальный виджет
+          opacity: 0.9, // Добавляем прозрачность
+          child: Container(
+            width: 250,
+            constraints: const BoxConstraints(maxHeight: 100),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: const Center(
+              child: Text(
+                'Dragging...',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

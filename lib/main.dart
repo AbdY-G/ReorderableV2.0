@@ -31,6 +31,32 @@ class _MyAppState extends State<MyApp> {
         return index % 5; // Обычные типы виджетов
     }
   }
+
+  Color _getFeedbackColor(int type) {
+    switch (type) {
+      case 0: return Colors.blue;
+      case 1: return Colors.green;
+      case 2: return Colors.orange;
+      case 3: return Colors.purple;
+      case 4: return Colors.teal;
+      case 5: return Colors.red;
+      case 6: return Colors.deepPurple;
+      default: return Colors.blue;
+    }
+  }
+
+  String _getFeedbackDescription(int type) {
+    switch (type) {
+      case 0: return 'Small item';
+      case 1: return 'Medium item';
+      case 2: return 'Large item';
+      case 3: return 'Extra large item';
+      case 4: return 'Card item';
+      case 5: return 'Very large item';
+      case 6: return 'Super large item';
+      default: return 'Item';
+    }
+  }
   late ScrollController _scrollController;
 
   @override
@@ -76,16 +102,76 @@ class _MyAppState extends State<MyApp> {
               });
             },
             feedbackBuilder: (child, index) {
-              // Создаем точно такой же виджет как основной, только уменьшенный
+              // Создаем упрощенную версию виджета для feedback
               return Transform.scale(
-                scale: 0.7, // Уменьшаем размер
+                scale: 0.8, // Уменьшаем размер
                 child: Material(
                   elevation: 12,
                   borderRadius: BorderRadius.circular(12),
                   color: Colors.transparent,
                   child: Opacity(
-                    opacity: 0.8, // Добавляем прозрачность
-                    child: _buildListItem(items[index], index), // Используем тот же метод что и для основного виджета
+                    opacity: 0.9, // Добавляем прозрачность
+                    child: Container(
+                      width: 300,
+                      constraints: const BoxConstraints(maxHeight: 120),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: _getFeedbackColor(items[index]['type']),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: Colors.white,
+                                radius: 16,
+                                child: Text(
+                                  '${index + 1}',
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  items[index]['text'],
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _getFeedbackDescription(items[index]['type']),
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              fontSize: 12,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               );
