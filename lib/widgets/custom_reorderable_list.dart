@@ -1,17 +1,19 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-class CustomDraggableList extends StatefulWidget {
-  final List<Widget> children;
+class CustomDraggableList<T> extends StatefulWidget {
+  final List<T> items;
+  final Widget Function(T item, int index) itemBuilder;
   final Function(int oldIndex, int newIndex) onReorder;
-  final Widget Function(Widget child, int index)? feedbackBuilder;
+  final Widget Function(T item, int index)? feedbackBuilder;
   final Color insertIndicatorColor;
   final double insertIndicatorHeight;
   final ScrollController? scrollController;
 
   const CustomDraggableList({
     super.key,
-    required this.children,
+    required this.items,
+    required this.itemBuilder,
     required this.onReorder,
     this.feedbackBuilder,
     this.insertIndicatorColor = Colors.purple,
@@ -20,10 +22,10 @@ class CustomDraggableList extends StatefulWidget {
   });
 
   @override
-  State<CustomDraggableList> createState() => _CustomDraggableListState();
+  State<CustomDraggableList<T>> createState() => _CustomDraggableListState<T>();
 }
 
-class _CustomDraggableListState extends State<CustomDraggableList> {
+class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
   int? _targetIndex;
   Timer? _autoScrollTimer;
   double _autoScrollSpeed = 0.0;
@@ -98,25 +100,29 @@ class _CustomDraggableListState extends State<CustomDraggableList> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Основные элементы списка
-        ...widget.children.asMap().entries.map((entry) {
-          final index = entry.key;
-          final child = entry.value;
+    return SingleChildScrollView(
+      controller: widget.scrollController,
+      child: Column(
+        children: [
+          // Основные элементы списка
+          ...widget.items.asMap().entries.map((entry) {
+            final index = entry.key;
+            final item = entry.value;
+            final child = widget.itemBuilder(item, index);
 
-          return Column(
-            children: [
-              // Drop zone перед элементом
-              _buildDropZone(index),
-              // Сам элемент
-              _buildDraggableItem(child, index),
-            ],
-          );
-        }),
-        // Drop zone после последнего элемента
-        _buildDropZone(widget.children.length),
-      ],
+            return Column(
+              children: [
+                // Drop zone перед элементом
+                _buildDropZone(index),
+                // Сам элемент
+                _buildDraggableItem(item, child, index),
+              ],
+            );
+          }),
+          // Drop zone после последнего элемента
+          _buildDropZone(widget.items.length),
+        ],
+      ),
     );
   }
 
@@ -207,7 +213,7 @@ class _CustomDraggableListState extends State<CustomDraggableList> {
     );
   }
 
-  Widget _buildDraggableItem(Widget child, int index) {
+  Widget _buildDraggableItem(T item, Widget child, int index) {
     return LongPressDraggable<int>(
       data: index,
       onDragStarted: () {
@@ -220,8 +226,8 @@ class _CustomDraggableListState extends State<CustomDraggableList> {
         });
         _stopAutoScroll();
       },
-      feedback: widget.feedbackBuilder?.call(child, index) ?? 
-               _buildDefaultFeedback(child, index),
+      feedback: widget.feedbackBuilder?.call(item, index) ?? 
+               _buildDefaultFeedback(item, child, index),
       childWhenDragging: AnimatedOpacity(
         opacity: 0.3,
         duration: const Duration(milliseconds: 200),
@@ -235,7 +241,7 @@ class _CustomDraggableListState extends State<CustomDraggableList> {
     );
   }
 
-  Widget _buildDefaultFeedback(Widget child, int index) {
+  Widget _buildDefaultFeedback(T item, Widget child, int index) {
     return Transform.scale(
       scale: 0.8, // Уменьшаем размер
       child: Material(
@@ -245,29 +251,12 @@ class _CustomDraggableListState extends State<CustomDraggableList> {
         child: Opacity(
           opacity: 0.9, // Добавляем прозрачность
           child: Container(
-            width: 250,
-            constraints: const BoxConstraints(maxHeight: 100),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+            constraints: const BoxConstraints(
+              maxWidth: 300,
             ),
-            child: const Center(
-              child: Text(
-                'Dragging...',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: child, // Используем оригинальный виджет
             ),
           ),
         ),
