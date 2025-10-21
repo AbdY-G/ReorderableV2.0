@@ -34,6 +34,7 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
   T? _draggedItem;
   int? _draggedIndex;
   Offset _feedbackPosition = Offset.zero;
+  final GlobalKey _feedbackKey = GlobalKey();
 
   @override
   void dispose() {
@@ -82,41 +83,42 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
             builder: (context) {
               print('OverlayEntry builder called');
               return Positioned(
-                left: _feedbackPosition.dx - (widget.config.feedbackMaxWidth / 2), // Центрируем по горизонтали
-                top: _feedbackPosition.dy - (widget.config.feedbackMaxHeight / 2),   // Центрируем по вертикали
+                left: _feedbackPosition.dx - (widget.config.feedbackMaxWidth / 2),
+                top: _feedbackPosition.dy - (widget.config.feedbackMaxHeight / 2),
                 child: IgnorePointer(
                   child: Container(
-                    constraints: BoxConstraints(
-                      maxWidth: widget.config.feedbackMaxWidth,
-                      maxHeight: widget.config.feedbackMaxHeight,
-                    ),
-                    child: widget.feedbackBuilder != null 
-                      ? widget.feedbackBuilder!(item, index)
-                      : Container(
-                          width: 200,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            color: Colors.red.withValues(alpha: 0.8),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'FEEDBACK',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                    width: widget.config.feedbackMaxWidth,
+                    height: widget.config.feedbackMaxHeight,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: widget.feedbackBuilder != null 
+                        ? widget.feedbackBuilder!(item, index)
+                        : Container(
+                            width: 200,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              color: Colors.red.withValues(alpha: 0.8),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: const Center(
+                              child: Text(
+                                'FEEDBACK',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
                           ),
-                        ),
+                    ),
                   ),
                 ),
               );
