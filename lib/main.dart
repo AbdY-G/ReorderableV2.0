@@ -737,11 +737,10 @@ class _MyAppState extends State<MyApp> {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           controller: _scrollController,
-          child: CustomDraggableList(
+          child: CustomDraggableList<Map<String, dynamic>>(
+            items: items,
+            itemBuilder: (item, index) => _buildListItem(item, index),
             scrollController: _scrollController,
-            children: items.asMap().entries.map((entry) => 
-              _buildListItem(entry.value, entry.key)
-            ).toList(),
             onReorder: (oldIndex, newIndex) {
               setState(() {
                 if (newIndex > oldIndex) {
@@ -751,7 +750,9 @@ class _MyAppState extends State<MyApp> {
                 items.insert(newIndex, item);
               });
             },
-            feedbackBuilder: (child, index) {
+            insertIndicatorColor: Colors.purple,
+            insertIndicatorHeight: 6.0,
+            feedbackBuilder: (item, index) {
               // Создаем упрощенную копию виджета для feedback
               return Transform.scale(
                 scale: 0.7, // Уменьшаем размер
