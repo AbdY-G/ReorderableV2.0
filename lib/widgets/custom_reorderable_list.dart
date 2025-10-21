@@ -36,6 +36,14 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
   Offset _feedbackPosition = Offset.zero;
   final GlobalKey _feedbackKey = GlobalKey();
 
+  // Вспомогательные методы для плавной прокрутки
+  double _calculateScrollSpeed(double normalizedDistance, double maxSpeed) {
+    // Используем квадратичную кривую для более плавного ускорения
+    final easedDistance = normalizedDistance * normalizedDistance;
+    return easedDistance * maxSpeed;
+  }
+
+
   @override
   void dispose() {
     _autoScrollTimer?.cancel();
@@ -45,7 +53,7 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
 
   void _startAutoScroll(double speed) {
     _autoScrollSpeed = speed;
-    _autoScrollTimer ??= Timer.periodic(const Duration(milliseconds: 16), (
+    _autoScrollTimer ??= Timer.periodic(widget.config.autoScrollDuration, (
       timer,
     ) {
       if (widget.scrollController != null &&
@@ -55,6 +63,7 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
 
         if (newOffset >= 0 &&
             newOffset <= widget.scrollController!.position.maxScrollExtent) {
+          // Используем jumpTo для плавного автоскролла
           widget.scrollController!.jumpTo(newOffset);
         }
       }
@@ -151,22 +160,21 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
         final maxScrollSpeed = widget.config.maxScrollSpeed;
 
     // Автоскролл вверх - когда курсор в верхней части экрана
-    if (globalPosition.dy < autoScrollZone &&
-        widget.scrollController!.offset > 0) {
-      final speed =
-          (autoScrollZone - globalPosition.dy) /
-          autoScrollZone *
-          maxScrollSpeed;
-      _startAutoScroll(-speed);
+    if (globalPosition.dy < autoScrollZone) {
+      // Более плавная кривая для прокрутки вверх
+      final normalizedDistance = (autoScrollZone - globalPosition.dy) / autoScrollZone;
+      final speed = _calculateScrollSpeed(normalizedDistance, maxScrollSpeed);
+      
+      if (widget.scrollController!.offset > 0) {
+        _startAutoScroll(-speed);
+      }
     }
     // Автоскролл вниз - когда курсор в нижней части экрана
     else if (globalPosition.dy > screenSize.height - autoScrollZone &&
         widget.scrollController!.offset <
             widget.scrollController!.position.maxScrollExtent) {
-      final speed =
-          (globalPosition.dy - (screenSize.height - autoScrollZone)) /
-          autoScrollZone *
-          maxScrollSpeed;
+      final normalizedDistance = (globalPosition.dy - (screenSize.height - autoScrollZone)) / autoScrollZone;
+      final speed = _calculateScrollSpeed(normalizedDistance, maxScrollSpeed);
       _startAutoScroll(speed);
     }
     // Остановить автоскролл
@@ -182,7 +190,10 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
     return SingleChildScrollView(
       controller: widget.scrollController,
       child: Padding(
-        padding: widget.config.listPadding,
+        padding: EdgeInsets.only(
+          top: widget.config.topPadding,
+          bottom: widget.config.bottomPadding,
+        ),
         child: Column(
           children: [
             // Drop zone в самом начале списка

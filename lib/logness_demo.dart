@@ -145,16 +145,18 @@ class _LogNessDemoState extends State<LogNessDemo> {
         itemBuilder: (log, index) => _buildLogWidget(log),
         onReorder: _onReorder,
         scrollController: _scrollController,
-        config: const ReorderableListConfig(
-          insertIndicatorColor: Colors.orange,
-          insertIndicatorHeight: 6.0,
-          feedbackScale: 0.7,
-          feedbackOpacity: 0.9,
-          selectedWidgetScale: 0.95,
-          selectedWidgetOpacity: 0.7,
-          autoScrollZone: 100.0,
-          maxScrollSpeed: 15.0,
-        ),
+            config: const ReorderableListConfig(
+              insertIndicatorColor: Colors.orange,
+              insertIndicatorHeight: 6.0,
+              feedbackScale: 0.7,
+              feedbackOpacity: 0.9,
+              selectedWidgetScale: 0.95,
+              selectedWidgetOpacity: 0.7,
+              autoScrollZone: 100.0,
+              maxScrollSpeed: 15.0,
+              topPadding: 0.0, // Можно настроить верхний отступ (по умолчанию 0)
+              bottomPadding: 80.0,
+            ),
         feedbackBuilder: (log, index) {
           // Создаем уменьшенную копию виджета для feedback
           return Transform.scale(

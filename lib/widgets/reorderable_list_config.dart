@@ -26,7 +26,8 @@ class ReorderableListConfig {
   final Duration autoScrollDuration;
   
   // List padding settings
-  final EdgeInsets listPadding;
+  final double topPadding;
+  final double bottomPadding;
   
   const ReorderableListConfig({
     // Insert indicator defaults
@@ -52,7 +53,8 @@ class ReorderableListConfig {
     this.autoScrollDuration = const Duration(milliseconds: 16),
     
     // List padding defaults
-    this.listPadding = const EdgeInsets.symmetric(vertical: 80.0),
+    this.topPadding = 0.0,
+    this.bottomPadding = 80.0,
   });
   
   /// Copy with method for creating modified configurations
@@ -69,7 +71,8 @@ class ReorderableListConfig {
     double? maxScrollSpeed,
     Duration? animationDuration,
     Duration? autoScrollDuration,
-    EdgeInsets? listPadding,
+    double? topPadding,
+    double? bottomPadding,
   }) {
     return ReorderableListConfig(
       insertIndicatorColor: insertIndicatorColor ?? this.insertIndicatorColor,
@@ -84,7 +87,8 @@ class ReorderableListConfig {
       maxScrollSpeed: maxScrollSpeed ?? this.maxScrollSpeed,
       animationDuration: animationDuration ?? this.animationDuration,
       autoScrollDuration: autoScrollDuration ?? this.autoScrollDuration,
-      listPadding: listPadding ?? this.listPadding,
+      topPadding: topPadding ?? this.topPadding,
+      bottomPadding: bottomPadding ?? this.bottomPadding,
     );
   }
 }
