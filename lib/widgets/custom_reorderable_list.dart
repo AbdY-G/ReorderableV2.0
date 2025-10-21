@@ -85,8 +85,8 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
             builder: (context) {
               print('OverlayEntry builder called');
               return Positioned(
-                left: _feedbackPosition.dx - 100, // Центрируем по горизонтали
-                top: _feedbackPosition.dy - 50,   // Центрируем по вертикали
+                left: _feedbackPosition.dx - 150, // Центрируем по горизонтали (половина от 300)
+                top: _feedbackPosition.dy - 100,   // Центрируем по вертикали (половина от 200)
                 child: IgnorePointer(
                   child: Container(
                     constraints: const BoxConstraints(
