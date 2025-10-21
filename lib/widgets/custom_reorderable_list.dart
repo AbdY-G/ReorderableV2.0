@@ -36,6 +36,7 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
   bool _isDragging = false;
   T? _draggedItem;
   int? _draggedIndex;
+  Offset _feedbackPosition = Offset.zero;
 
   @override
   void dispose() {
@@ -70,42 +71,52 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
 
   void _showFeedbackOverlay(T item, Widget child, int index, Offset position) {
     print('_showFeedbackOverlay called with position: $position');
-    _feedbackOverlay?.remove();
     
-    _feedbackOverlay = OverlayEntry(
-      builder: (context) {
-        print('OverlayEntry builder called');
-        return Positioned(
-          left: position.dx - 50, // Центрируем по горизонтали
-          top: position.dy + 20,  // Размещаем под пальцем
-          child: Container(
-            width: 200,
-            height: 100,
-            decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.8),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+    // Обновляем позицию
+    _feedbackPosition = position;
+    
+    // Если overlay уже существует, просто обновляем его позицию
+    if (_feedbackOverlay != null) {
+      _feedbackOverlay!.markNeedsBuild();
+      return;
+    }
+    
+          _feedbackOverlay = OverlayEntry(
+            builder: (context) {
+              print('OverlayEntry builder called');
+              return Positioned(
+                left: _feedbackPosition.dx - 100, // Центрируем по горизонтали (200px / 2)
+                top: _feedbackPosition.dy - 50,   // Центрируем по вертикали (100px / 2)
+                child: IgnorePointer(
+                  child: Container(
+                    width: 200,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'FEEDBACK',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ],
-            ),
-            child: const Center(
-              child: Text(
-                'FEEDBACK',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
+              );
+            },
+          );
     
     print('Inserting overlay into Overlay.of(context)');
     Overlay.of(context).insert(_feedbackOverlay!);
@@ -127,42 +138,7 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
     final screenSize = MediaQuery.of(context).size;
     final globalPosition = details.globalPosition;
 
-    // Обновляем позицию overlay если он активен
-    if (_isDragging && _feedbackOverlay != null) {
-      _feedbackOverlay!.remove();
-      _feedbackOverlay = OverlayEntry(
-        builder: (context) => Positioned(
-          left: globalPosition.dx - 50, // Центрируем по горизонтали
-          top: globalPosition.dy + 20,  // Размещаем под пальцем
-          child: Container(
-            width: 200,
-            height: 100,
-            decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.8),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: const Center(
-              child: Text(
-                'FEEDBACK',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-      Overlay.of(context).insert(_feedbackOverlay!);
-    }
+    // Позиция вставки определяется через DragTarget onMove, здесь не нужно ничего делать
 
     const autoScrollZone = 100.0; // Увеличиваем зону автоскролла
     const maxScrollSpeed = 15.0; // Увеличиваем скорость скролла
@@ -237,6 +213,7 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
         });
       },
       onMove: (details) {
+        print('DragTarget onMove called for index $index');
         setState(() {
           _targetIndex = index;
         });
@@ -333,41 +310,9 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
           // Обновляем позицию пальца
           _dragStartPosition = details.globalPosition;
           
-          // Обновляем позицию overlay
-          if (_isDragging && _feedbackOverlay != null) {
-            _feedbackOverlay!.remove();
-            _feedbackOverlay = OverlayEntry(
-              builder: (context) => Positioned(
-                left: details.globalPosition.dx - 50, // Центрируем по горизонтали
-                top: details.globalPosition.dy + 20,  // Размещаем под пальцем
-                child: Container( // Simplified feedback for debugging
-                  width: 200,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'FEEDBACK',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-            Overlay.of(context).insert(_feedbackOverlay!);
+          // Обновляем позицию overlay во время перетаскивания
+          if (_isDragging && _draggedItem != null && _draggedIndex != null) {
+            _showFeedbackOverlay(_draggedItem!, child, _draggedIndex!, details.globalPosition);
           }
           
           _handleDragUpdate(details);
