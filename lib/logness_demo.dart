@@ -149,7 +149,7 @@ class _LogNessDemoState extends State<LogNessDemo> {
         itemBuilder: (log, index) => _buildLogWidget(log),
         onReorder: _onReorder,
         scrollController: _scrollController,
-        insertIndicatorColor: Colors.purple,
+        insertIndicatorColor: Colors.orange,
         insertIndicatorHeight: 6.0,
         feedbackBuilder: (log, index) {
           // Создаем уменьшенную копию виджета для feedback

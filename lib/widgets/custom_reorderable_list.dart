@@ -99,11 +99,11 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
                           width: 200,
                           height: 100,
                           decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.8),
+                            color: Colors.red.withValues(alpha: 0.8),
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
+                                color: Colors.black.withValues(alpha: 0.3),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -235,7 +235,7 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
         final isActive = candidateData.isNotEmpty && _targetIndex == index;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          height: 24,
+          height: 12,
           decoration: BoxDecoration(
             color: isActive
                 ? widget.insertIndicatorColor.withValues(alpha: 0.3)
