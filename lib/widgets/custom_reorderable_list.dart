@@ -181,26 +181,31 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       controller: widget.scrollController,
-      child: Column(
-        children: [
-          // Основные элементы списка
-          ...widget.items.asMap().entries.map((entry) {
-            final index = entry.key;
-            final item = entry.value;
-            final child = widget.itemBuilder(item, index);
+      child: Padding(
+        padding: widget.config.listPadding,
+        child: Column(
+          children: [
+            // Drop zone в самом начале списка
+            _buildDropZone(0),
+            // Основные элементы списка
+            ...widget.items.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              final child = widget.itemBuilder(item, index);
 
-            return Column(
-              children: [
-                // Drop zone перед элементом
-                _buildDropZone(index),
-                // Сам элемент
-                _buildDraggableItem(item, child, index),
-              ],
-            );
-          }),
-          // Drop zone после последнего элемента
-          _buildDropZone(widget.items.length),
-        ],
+              return Column(
+                children: [
+                  // Drop zone перед элементом (кроме первого)
+                  if (index > 0) _buildDropZone(index),
+                  // Сам элемент
+                  _buildDraggableItem(item, child, index),
+                ],
+              );
+            }),
+            // Drop zone после последнего элемента
+            _buildDropZone(widget.items.length),
+          ],
+        ),
       ),
     );
   }
