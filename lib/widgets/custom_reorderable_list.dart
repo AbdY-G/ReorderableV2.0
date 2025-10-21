@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'reorderable_list_config.dart';
 
 class CustomDraggableList<T> extends StatefulWidget {
   final List<T> items;
   final Widget Function(T item, int index) itemBuilder;
   final Function(int oldIndex, int newIndex) onReorder;
   final Widget Function(T item, int index)? feedbackBuilder;
-  final Color insertIndicatorColor;
-  final double insertIndicatorHeight;
   final ScrollController? scrollController;
-  final Offset feedbackOffset;
+  final ReorderableListConfig config;
 
   const CustomDraggableList({
     super.key,
@@ -17,10 +16,8 @@ class CustomDraggableList<T> extends StatefulWidget {
     required this.itemBuilder,
     required this.onReorder,
     this.feedbackBuilder,
-    this.insertIndicatorColor = Colors.purple,
-    this.insertIndicatorHeight = 6.0,
     this.scrollController,
-    this.feedbackOffset = const Offset(0, -50), // По умолчанию смещение вверх
+    this.config = const ReorderableListConfig(),
   });
 
   @override
@@ -85,13 +82,13 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
             builder: (context) {
               print('OverlayEntry builder called');
               return Positioned(
-                left: _feedbackPosition.dx - 150, // Центрируем по горизонтали (половина от 300)
-                top: _feedbackPosition.dy - 100,   // Центрируем по вертикали (половина от 200)
+                left: _feedbackPosition.dx - (widget.config.feedbackMaxWidth / 2), // Центрируем по горизонтали
+                top: _feedbackPosition.dy - (widget.config.feedbackMaxHeight / 2),   // Центрируем по вертикали
                 child: IgnorePointer(
                   child: Container(
-                    constraints: const BoxConstraints(
-                      maxWidth: 300,
-                      maxHeight: 400,
+                    constraints: BoxConstraints(
+                      maxWidth: widget.config.feedbackMaxWidth,
+                      maxHeight: widget.config.feedbackMaxHeight,
                     ),
                     child: widget.feedbackBuilder != null 
                       ? widget.feedbackBuilder!(item, index)
@@ -148,8 +145,8 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
 
     // Позиция вставки определяется через DragTarget onMove, здесь не нужно ничего делать
 
-    const autoScrollZone = 100.0; // Увеличиваем зону автоскролла
-    const maxScrollSpeed = 15.0; // Увеличиваем скорость скролла
+        final autoScrollZone = widget.config.autoScrollZone;
+        final maxScrollSpeed = widget.config.maxScrollSpeed;
 
     // Автоскролл вверх - когда курсор в верхней части экрана
     if (globalPosition.dy < autoScrollZone &&
@@ -234,30 +231,30 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
       builder: (context, candidateData, rejectedData) {
         final isActive = candidateData.isNotEmpty && _targetIndex == index;
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: widget.config.animationDuration,
           height: 12,
           decoration: BoxDecoration(
             color: isActive
-                ? widget.insertIndicatorColor.withValues(alpha: 0.3)
+                ? widget.config.insertIndicatorColor.withValues(alpha: 0.3)
                 : Colors.transparent,
           ),
           child: AnimatedOpacity(
             opacity: isActive ? 1.0 : 0.0,
-            duration: const Duration(milliseconds: 200),
+            duration: widget.config.animationDuration,
             child: AnimatedScale(
               scale: isActive ? 1.0 : 0.8,
-              duration: const Duration(milliseconds: 200),
+              duration: widget.config.animationDuration,
               child: Container(
-                height: widget.insertIndicatorHeight,
+                height: widget.config.insertIndicatorHeight,
                 margin: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: widget.insertIndicatorColor,
+                  color: widget.config.insertIndicatorColor,
                   borderRadius: BorderRadius.circular(
-                    widget.insertIndicatorHeight / 2,
+                    widget.config.insertIndicatorHeight / 2,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: widget.insertIndicatorColor.withValues(
+                      color: widget.config.insertIndicatorColor.withValues(
                         alpha: 0.5,
                       ),
                       blurRadius: 8,
@@ -295,6 +292,8 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
   }
 
   Widget _buildDraggableItem(T item, Widget child, int index) {
+    final isSelected = _isDragging && _draggedIndex == index;
+    
     return GestureDetector(
       onTapDown: (details) {
         print('onTapDown called with position: ${details.globalPosition}');
@@ -303,7 +302,13 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
         _draggedItem = item;
         _draggedIndex = index;
       },
-      child: LongPressDraggable<int>(
+      child: AnimatedScale(
+        scale: isSelected ? widget.config.selectedWidgetScale : 1.0,
+        duration: widget.config.animationDuration,
+        child: AnimatedOpacity(
+          opacity: isSelected ? widget.config.selectedWidgetOpacity : 1.0,
+          duration: widget.config.animationDuration,
+          child: LongPressDraggable<int>(
         data: index,
         onDragStarted: () {
           print('onDragStarted called');
@@ -348,6 +353,8 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
           ),
         ),
         child: child,
+          ),
+        ),
       ),
     );
   }

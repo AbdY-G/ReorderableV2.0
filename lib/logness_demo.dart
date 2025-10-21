@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'widgets/custom_reorderable_list.dart';
+import 'widgets/reorderable_list_config.dart';
 import 'models/log.dart';
 import 'blocks/text_block.dart';
 import 'blocks/image_block.dart';
@@ -139,28 +140,31 @@ class _LogNessDemoState extends State<LogNessDemo> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        title: const Text('LogNessV2.0 - Reorderable Logs'),
-        backgroundColor: Colors.blue.shade600,
-        foregroundColor: Colors.white,
-      ),
       body: CustomDraggableList<Log>(
         items: logs,
         itemBuilder: (log, index) => _buildLogWidget(log),
         onReorder: _onReorder,
         scrollController: _scrollController,
-        insertIndicatorColor: Colors.orange,
-        insertIndicatorHeight: 6.0,
+        config: const ReorderableListConfig(
+          insertIndicatorColor: Colors.orange,
+          insertIndicatorHeight: 6.0,
+          feedbackScale: 0.7,
+          feedbackOpacity: 0.9,
+          selectedWidgetScale: 0.95,
+          selectedWidgetOpacity: 0.7,
+          autoScrollZone: 100.0,
+          maxScrollSpeed: 15.0,
+        ),
         feedbackBuilder: (log, index) {
           // Создаем уменьшенную копию виджета для feedback
           return Transform.scale(
-            scale: 0.7, // Уменьшаем размер
+            scale: 0.7, // Уменьшаем размер (можно использовать config.feedbackScale)
             child: Material(
               elevation: 12,
               borderRadius: BorderRadius.circular(12),
               color: Colors.transparent,
               child: Opacity(
-                opacity: 0.9, // Добавляем прозрачность
+                opacity: 0.9, // Добавляем прозрачность (можно использовать config.feedbackOpacity)
                 child: _buildLogWidget(log),
               ),
             ),
