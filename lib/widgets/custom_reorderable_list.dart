@@ -85,33 +85,41 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
             builder: (context) {
               print('OverlayEntry builder called');
               return Positioned(
-                left: _feedbackPosition.dx - 100, // Центрируем по горизонтали (200px / 2)
-                top: _feedbackPosition.dy - 50,   // Центрируем по вертикали (100px / 2)
+                left: _feedbackPosition.dx - 100, // Центрируем по горизонтали
+                top: _feedbackPosition.dy - 50,   // Центрируем по вертикали
                 child: IgnorePointer(
                   child: Container(
-                    width: 200,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                    constraints: const BoxConstraints(
+                      maxWidth: 300,
+                      maxHeight: 400,
                     ),
-                    child: const Center(
-                      child: Text(
-                        'FEEDBACK',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                    child: widget.feedbackBuilder != null 
+                      ? widget.feedbackBuilder!(item, index)
+                      : Container(
+                          width: 200,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.8),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'FEEDBACK',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
                   ),
                 ),
               );
@@ -344,26 +352,4 @@ class _CustomDraggableListState<T> extends State<CustomDraggableList<T>> {
     );
   }
 
-  Widget _buildDefaultFeedback(T item, Widget child, int index) {
-    return Transform.scale(
-      scale: 0.8, // Уменьшаем размер
-      child: Material(
-        elevation: 12,
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.transparent,
-        child: Opacity(
-          opacity: 0.9, // Добавляем прозрачность
-          child: Container(
-            constraints: const BoxConstraints(
-              maxWidth: 300,
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: child, // Используем оригинальный виджет
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }

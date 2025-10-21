@@ -151,7 +151,21 @@ class _LogNessDemoState extends State<LogNessDemo> {
         scrollController: _scrollController,
         insertIndicatorColor: Colors.purple,
         insertIndicatorHeight: 6.0,
-        // feedbackBuilder автоматически создает уменьшенную копию блока
+        feedbackBuilder: (log, index) {
+          // Создаем уменьшенную копию виджета для feedback
+          return Transform.scale(
+            scale: 0.7, // Уменьшаем размер
+            child: Material(
+              elevation: 12,
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.transparent,
+              child: Opacity(
+                opacity: 0.9, // Добавляем прозрачность
+                child: _buildLogWidget(log),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
